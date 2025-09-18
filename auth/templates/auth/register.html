@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registration</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="employee_id" class="form-label">Employee ID</label>
+    <input type="text" class="form-control" id="employee_id" name="employee_id" required>
+  </div>
+  <div class="mb-3">
+    <label for="name" class="form-label">Full Name</label>
+    <input type="text" class="form-control" id="name" name="name" required>
+  </div>
+  <div class="mb-3">
+    <label for="department" class="form-label">Department</label>
+    <select name="department" id="department" class="form-select" required>
+      <option value="">Select Department</option>
+      <option value="Operations">Operations</option>
+      <option value="Technology">Technology</option>
+      <option value="Quality">Quality</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="district" class="form-label">District</label>
+    <input type="text" class="form-control" id="district" name="district" required>
+  </div>
+  <div class="mb-3">
+    <label for="role" class="form-label">Role</label>
+    <input type="text" class="form-control" id="role" name="role" required>
+  </div>
+  <div class="mb-3">
+    <label for="designation" class="form-label">Designation</label>
+    <input type="text" class="form-control" id="designation" name="designation" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}

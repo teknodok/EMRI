@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="email" class="form-label">EMRI Email</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="you@emri.in" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Send OTP</button>
+</form>
+{% endblock %}

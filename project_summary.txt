@@ -1,0 +1,920 @@
+
+================================================================================
+FILE: config.py
+--------------------------------------------------------------------------------
+import os
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '21237&^^&^&(*!6515725&@!&*!87198229387hjesaj21122*&^%%^@%&#&*'
+    # MSSQL connection configuration
+    DB_DRIVER = os.environ.get('DB_DRIVER', 'ODBC Driver 17 for SQL Server')
+    DB_SERVER = os.environ.get('DB_SERVER', 'localhost')
+    DB_DATABASE = 'Q_Ops'
+    DB_USERNAME = os.environ.get('DB_USERNAME', 'sa')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', '_eJE86KYD:c#g9cg')
+    DB_TRUSTED_CONNECTION = os.environ.get('DB_TRUSTED_CONNECTION', 'yes')
+    # Email / OTP
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'vishal_jayaswal@emri.in')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'hqij vcvp vmvf ksln')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'vishal_jayaswal@emri.in')
+
+
+================================================================================
+FILE: app.py
+--------------------------------------------------------------------------------
+from flask import Flask, redirect, url_for
+from config import Config
+from extensions import login_manager, mail
+from auth.routes import auth_bp
+from departments.operations.routes import operations_bp
+from departments.technology.routes import technology_bp
+from departments.quality.routes import quality_bp
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # initialize extensions
+    login_manager.init_app(app)
+    mail.init_app(app)
+    login_manager.login_view = 'auth.login'
+
+    # register blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(operations_bp, url_prefix='/operations')
+    app.register_blueprint(technology_bp, url_prefix='/technology')
+    app.register_blueprint(quality_bp, url_prefix='/quality')
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('auth.login'))
+
+    return app
+
+
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
+
+
+================================================================================
+FILE: extensions.py
+--------------------------------------------------------------------------------
+from flask_login import LoginManager
+from flask_mail import Mail
+
+login_manager = LoginManager()
+mail = Mail()
+
+
+================================================================================
+FILE: generate_code_summary.py
+--------------------------------------------------------------------------------
+# generate_code_summary.py
+import os
+
+def summarize_directory(root_dir, max_file_size_kb=100):
+    summary = []
+
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            rel_path = os.path.relpath(filepath, root_dir)
+
+            # Only read small text files
+            if filename.endswith(('.py', '.html', '.txt', '.cfg')) and os.path.getsize(filepath) <= max_file_size_kb * 1024:
+                with open(filepath, 'r', encoding='utf-8', errors='ignore') as file:
+                    content = file.read()
+                summary.append({
+                    'path': rel_path.replace("\\", "/"),
+                    'content': content
+                })
+            else:
+                summary.append({
+                    'path': rel_path.replace("\\", "/"),
+                    'content': '[Skipped: Too large or not a relevant file type]'
+                })
+    return summary
+
+def main():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    summary = summarize_directory(project_root)
+
+    output_file = os.path.join(project_root, 'project_summary.txt')
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for file in summary:
+            f.write(f"\n{'='*80}\n")
+            f.write(f"FILE: {file['path']}\n")
+            f.write(f"{'-'*80}\n")
+            f.write(file['content'] + '\n')
+    print(f"\n✅ Project summary generated: {output_file}")
+
+if __name__ == "__main__":
+    main()
+
+
+================================================================================
+FILE: project_summary.txt
+--------------------------------------------------------------------------------
+
+================================================================================
+FILE: config.py
+--------------------------------------------------------------------------------
+import os
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or '21237&^^&^&(*!6515725&@!&*!87198229387hjesaj21122*&^%%^@%&#&*'
+    # MSSQL connection configuration
+    DB_DRIVER = os.environ.get('DB_DRIVER', 'ODBC Driver 17 for SQL Server')
+    DB_SERVER = os.environ.get('DB_SERVER', 'localhost')
+    DB_DATABASE = 'Q_Ops'
+    DB_USERNAME = os.environ.get('DB_USERNAME', 'sa')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD', '_eJE86KYD:c#g9cg')
+    DB_TRUSTED_CONNECTION = os.environ.get('DB_TRUSTED_CONNECTION', 'yes')
+    # Email / OTP
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'vishal_jayaswal@emri.in')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'hqij vcvp vmvf ksln')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'vishal_jayaswal@emri.in')
+
+
+================================================================================
+FILE: app.py
+--------------------------------------------------------------------------------
+from flask import Flask, redirect, url_for
+from config import Config
+from extensions import login_manager, mail
+from auth.routes import auth_bp
+from departments.operations.routes import operations_bp
+# from departments.technology.routes import technology_bp
+# from departments.quality.routes import quality_bp
+
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    # initialize extensions
+    login_manager.init_app(app)
+    mail.init_app(app)
+    login_manager.login_view = 'auth.login'
+
+    # register blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(operations_bp, url_prefix='/operations')
+    # app.register_blueprint(technology_bp, url_prefix='/technology')
+    # app.register_blueprint(quality_bp, url_prefix='/quality')
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('auth.login'))
+
+    return app
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
+
+
+================================================================================
+FILE: extensions.py
+--------------------------------------------------------------------------------
+from flask_login import LoginManager
+from flask_mail import Mail
+
+login_manager = LoginManager()
+mail = Mail()
+
+
+================================================================================
+FILE: generate_code_summary.py
+--------------------------------------------------------------------------------
+# generate_code_summary.py
+import os
+
+def summarize_directory(root_dir, max_file_size_kb=100):
+    summary = []
+
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            rel_path = os.path.relpath(filepath, root_dir)
+
+            # Only read small text files
+            if filename.endswith(('.py', '.html', '.txt', '.cfg')) and os.path.getsize(filepath) <= max_file_size_kb * 1024:
+                with open(filepath, 'r', encoding='utf-8', errors='ignore') as file:
+                    content = file.read()
+                summary.append({
+                    'path': rel_path.replace("\\", "/"),
+                    'content': content
+                })
+            else:
+                summary.append({
+                    'path': rel_path.replace("\\", "/"),
+                    'content': '[Skipped: Too large or not a relevant file type]'
+                })
+    return summary
+
+def main():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    summary = summarize_directory(project_root)
+
+    output_file = os.path.join(project_root, 'project_summary.txt')
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for file in summary:
+            f.write(f"\n{'='*80}\n")
+            f.write(f"FILE: {file['path']}\n")
+            f.write(f"{'-'*80}\n")
+            f.write(file['content'] + '\n')
+    print(f"\n✅ Project summary generated: {output_file}")
+
+if __name__ == "__main__":
+    main()
+
+
+================================================================================
+FILE: auth/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask_login import login_user, logout_user, login_required, current_user, UserMixin
+from itsdangerous import URLSafeTimedSerializer
+from extensions import login_manager, mail
+from flask_mail import Message
+import pyodbc
+import random
+
+auth_bp = Blueprint('auth', __name__, template_folder='templates/auth')
+
+# User class for flask_login
+class User(UserMixin):
+    def __init__(self, id, email, name, department):
+        self.id = id
+        self.email = email
+        self.name = name
+        self.department = department
+
+@login_manager.user_loader
+def load_user(user_id):
+    # load user from DB by id
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT employee_id, email, name, department FROM Employees WHERE employee_id = ?", user_id)
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        emp_id, email, name, dept = row
+        user = User(emp_id, email, name, dept)
+        return user
+    else:
+        return None
+
+def get_db_conn():
+    cfg = __import__('config').config.Config
+    server = cfg.DB_SERVER
+    database = cfg.DB_DATABASE
+    username = cfg.DB_USERNAME
+    password = cfg.DB_PASSWORD
+    driver = cfg.DB_DRIVER
+    conn_str = (
+        f"DRIVER={{{driver}}};"
+        f"SERVER={server};"
+        f"DATABASE={database};"
+        f"UID={username};"
+        f"PWD={password};"
+    )
+    conn = pyodbc.connect(conn_str)
+    return conn
+
+# Step 1: login form to take email
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        if not email.endswith('@emri.in'):
+            flash('Please use an @emri.in email address.', 'danger')
+            return render_template('login.html')
+        session['email_for_otp'] = email
+        otp = str(random.randint(100000, 999999))
+        session['otp'] = otp
+        # Send OTP via email
+        msg = Message("Your OTP", recipients=[email])
+        msg.body = f"Your login OTP is: {otp}"
+        mail.send(msg)
+        return redirect(url_for('auth.verify_otp'))
+    return render_template('auth/login.html')
+
+# Step 2: verify OTP
+@auth_bp.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        submitted = request.form.get('otp', '').strip()
+        if submitted == session.get('otp'):
+            email = session.get('email_for_otp')
+            # check if user already registered
+            conn = get_db_conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT employee_id, name, department FROM Employees WHERE email = ?", email)
+            row = cursor.fetchone()
+            if row:
+                emp_id, name, dept = row
+                user = User(emp_id, email, name, dept)
+                login_user(user)
+                conn.close()
+                # redirect based on department
+                if dept.lower() == 'operations':
+                    return redirect(url_for('operations.dashboard'))
+                elif dept.lower() == 'technology':
+                    return redirect(url_for('technology.dashboard'))
+                elif dept.lower() == 'quality':
+                    return redirect(url_for('quality.dashboard'))
+                else:
+                    # default landing
+                    return "Department not recognized", 400
+            else:
+                conn.close()
+                # not registered => go to registration
+                return redirect(url_for('auth.register'))
+        else:
+            flash('Invalid OTP. Please try again.', 'danger')
+            return render_template('verify_otp.html')
+    return render_template('auth/verify_otp.html')
+
+# Step 3: registration
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = session.get('email_for_otp')
+        employee_id = request.form.get('employee_id').strip()
+        name = request.form.get('name').strip()
+        department = request.form.get('department').strip()
+        district = request.form.get('district').strip()
+        role = request.form.get('role').strip()
+        designation = request.form.get('designation').strip()
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        # insert into Employees table
+        cursor.execute(
+            """INSERT INTO Employees (employee_id, name, email, department, district, role, designation)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            employee_id, name, email, department, district, role, designation
+        )
+        conn.commit()
+        conn.close()
+
+        # log user in
+        user = User(employee_id, email, name, department)
+        login_user(user)
+        # redirect to department landing
+        if department.lower() == 'operations':
+            return redirect(url_for('operations.dashboard'))
+        elif department.lower() == 'technology':
+            return redirect(url_for('technology.dashboard'))
+        elif department.lower() == 'quality':
+            return redirect(url_for('quality.dashboard'))
+        else:
+            return "Department not recognized", 400
+
+    # methods GET
+    return render_template('auth/register.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
+
+
+================================================================================
+FILE: auth/__init__.py
+--------------------------------------------------------------------------------
+# auth/__init__.py
+from flask import Blueprint
+
+auth_bp = Blueprint(
+    'auth',
+    __name__,
+    template_folder='templates'  # 👈 Important!
+)
+
+
+================================================================================
+FILE: auth/templates/auth/login.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="email" class="form-label">EMRI Email</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="you@emri.in" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Send OTP</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/templates/auth/verify_otp.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Verify OTP</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="otp" class="form-label">OTP</label>
+    <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter the OTP you got via email" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Verify</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/templates/auth/register.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Registration</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="employee_id" class="form-label">Employee ID</label>
+    <input type="text" class="form-control" id="employee_id" name="employee_id" required>
+  </div>
+  <div class="mb-3">
+    <label for="name" class="form-label">Full Name</label>
+    <input type="text" class="form-control" id="name" name="name" required>
+  </div>
+  <div class="mb-3">
+    <label for="department" class="form-label">Department</label>
+    <select name="department" id="department" class="form-select" required>
+      <option value="">Select Department</option>
+      <option value="Operations">Operations</option>
+      <option value="Technology">Technology</option>
+      <option value="Quality">Quality</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="district" class="form-label">District</label>
+    <input type="text" class="form-control" id="district" name="district" required>
+  </div>
+  <div class="mb-3">
+    <label for="role" class="form-label">Role</label>
+    <input type="text" class="form-control" id="role" name="role" required>
+  </div>
+  <div class="mb-3">
+    <label for="designation" class="form-label">Designation</label>
+    <input type="text" class="form-control" id="designation" name="designation" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: auth/__pycache__/__init__.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: departments/operations/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
+
+operations_bp = Blueprint('operations', __name__, template_folder='templates/operations')
+
+@operations_bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Maybe check that current_user.department == 'Operations'
+    if current_user.department.lower() != 'operations':
+        return "Unauthorized", 403
+    return render_template('dashboard.html', user=current_user)
+
+
+================================================================================
+FILE: departments/operations/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: templates/base.html
+--------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title or "Dashboard" }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">EMRI App</a>
+        {% if current_user.is_authenticated %}
+          <span class="navbar-text">
+            Logged in as {{ current_user.name }} ({{ current_user.email }})
+          </span>
+          <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+        {% endif %}
+      </div>
+    </nav>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+
+
+================================================================================
+FILE: __pycache__/config.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: __pycache__/extensions.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+
+================================================================================
+FILE: auth/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask_login import login_user, logout_user, login_required, current_user, UserMixin
+from itsdangerous import URLSafeTimedSerializer
+from extensions import login_manager, mail
+from flask_mail import Message
+import pyodbc
+import random
+from config import Config
+
+auth_bp = Blueprint('auth', __name__, template_folder='templates/auth')
+
+# User class for flask_login
+class User(UserMixin):
+    def __init__(self, id, email, name, department):
+        self.id = id
+        self.email = email
+        self.name = name
+        self.department = department
+
+@login_manager.user_loader
+def load_user(user_id):
+    # load user from DB by id
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT employee_id, email, name, department FROM Employees WHERE employee_id = ?", user_id)
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        emp_id, email, name, dept = row
+        user = User(emp_id, email, name, dept)
+        return user
+    else:
+        return None
+
+def get_db_conn():
+
+    cfg = Config
+
+    server = cfg.DB_SERVER
+    database = cfg.DB_DATABASE
+    username = cfg.DB_USERNAME
+    password = cfg.DB_PASSWORD
+    driver = cfg.DB_DRIVER
+    conn_str = (
+        f"DRIVER={{{driver}}};"
+        f"SERVER={server};"
+        f"DATABASE={database};"
+        f"UID={username};"
+        f"PWD={password};"
+    )
+    conn = pyodbc.connect(conn_str)
+    return conn
+
+# Step 1: login form to take email
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        if not email.endswith('@emri.in'):
+            flash('Please use an @emri.in email address.', 'danger')
+            return render_template('login.html')
+        session['email_for_otp'] = email
+        otp = str(random.randint(100000, 999999))
+        session['otp'] = otp
+        # Send OTP via email
+        msg = Message("Your OTP", recipients=[email])
+        msg.body = f"Your login OTP is: {otp}"
+        mail.send(msg)
+        return redirect(url_for('auth.verify_otp'))
+    return render_template('login.html')
+
+# Step 2: verify OTP
+@auth_bp.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        submitted = request.form.get('otp', '').strip()
+        if submitted == session.get('otp'):
+            email = session.get('email_for_otp')
+            # check if user already registered
+            conn = get_db_conn()
+            cursor = conn.cursor()
+            cursor.execute("SELECT employee_id, name, department FROM Employees WHERE email = ?", email)
+            row = cursor.fetchone()
+            if row:
+                emp_id, name, dept = row
+                user = User(emp_id, email, name, dept)
+                login_user(user)
+                conn.close()
+                # redirect based on department
+                if dept.lower() == 'operations':
+                    return redirect(url_for('operations.dashboard'))
+                elif dept.lower() == 'technology':
+                    return redirect(url_for('technology.dashboard'))
+                elif dept.lower() == 'quality':
+                    return redirect(url_for('quality.dashboard'))
+                else:
+                    # default landing
+                    return "Department not recognized", 400
+            else:
+                conn.close()
+                # not registered => go to registration
+                return redirect(url_for('auth.register'))
+        else:
+            flash('Invalid OTP. Please try again.', 'danger')
+            return render_template('verify_otp.html')
+    return render_template('verify_otp.html')
+
+# Step 3: registration
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = session.get('email_for_otp')
+        employee_id = request.form.get('employee_id').strip()
+        name = request.form.get('name').strip()
+        department = request.form.get('department').strip()
+        district = request.form.get('district').strip()
+        role = request.form.get('role').strip()
+        designation = request.form.get('designation').strip()
+
+        conn = get_db_conn()
+        cursor = conn.cursor()
+        # insert into Employees table
+        cursor.execute(
+            """INSERT INTO Employees (employee_id, name, email, department, district, role, designation)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            employee_id, name, email, department, district, role, designation
+        )
+        conn.commit()
+        conn.close()
+
+        # log user in
+        user = User(employee_id, email, name, department)
+        login_user(user)
+        # redirect to department landing
+        if department.lower() == 'operations':
+            return redirect(url_for('operations.dashboard'))
+        elif department.lower() == 'technology':
+            return redirect(url_for('technology.dashboard'))
+        elif department.lower() == 'quality':
+            return redirect(url_for('quality.dashboard'))
+        else:
+            return "Department not recognized", 400
+
+    # methods GET
+    return render_template('register.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
+
+
+================================================================================
+FILE: auth/__init__.py
+--------------------------------------------------------------------------------
+# auth/__init__.py
+from flask import Blueprint
+
+auth_bp = Blueprint(
+    'auth',
+    __name__,
+    template_folder='templates'  # 👈 Important!
+)
+
+
+================================================================================
+FILE: auth/templates/auth/login.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="email" class="form-label">EMRI Email</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="you@emri.in" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Send OTP</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/templates/auth/verify_otp.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Verify OTP</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="otp" class="form-label">OTP</label>
+    <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter the OTP you got via email" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Verify</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/templates/auth/register.html
+--------------------------------------------------------------------------------
+{% extends "base.html" %}
+{% block content %}
+<h2>Registration</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="employee_id" class="form-label">Employee ID</label>
+    <input type="text" class="form-control" id="employee_id" name="employee_id" required>
+  </div>
+  <div class="mb-3">
+    <label for="name" class="form-label">Full Name</label>
+    <input type="text" class="form-control" id="name" name="name" required>
+  </div>
+  <div class="mb-3">
+    <label for="department" class="form-label">Department</label>
+    <select name="department" id="department" class="form-select" required>
+      <option value="">Select Department</option>
+      <option value="Operations">Operations</option>
+      <option value="Technology">Technology</option>
+      <option value="Quality">Quality</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="district" class="form-label">District</label>
+    <input type="text" class="form-control" id="district" name="district" required>
+  </div>
+  <div class="mb-3">
+    <label for="role" class="form-label">Role</label>
+    <input type="text" class="form-control" id="role" name="role" required>
+  </div>
+  <div class="mb-3">
+    <label for="designation" class="form-label">Designation</label>
+    <input type="text" class="form-control" id="designation" name="designation" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+{% endblock %}
+
+
+================================================================================
+FILE: auth/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: auth/__pycache__/__init__.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: departments/operations/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
+
+operations_bp = Blueprint('operations', __name__, template_folder='templates/operations')
+
+@operations_bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Maybe check that current_user.department == 'Operations'
+    if current_user.department.lower() != 'operations':
+        return "Unauthorized", 403
+    return render_template('dashboard.html', user=current_user)
+
+
+================================================================================
+FILE: departments/operations/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: departments/technology/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
+
+technology_bp = Blueprint('technology', __name__, template_folder='templates/technology')
+
+@technology_bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Maybe check that current_user.department == 'Operations'
+    if current_user.department.lower() != 'technology':
+        return "Unauthorized", 403
+    return render_template('dashboard.html', user=current_user)
+
+
+================================================================================
+FILE: departments/technology/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: departments/quality/routes.py
+--------------------------------------------------------------------------------
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
+
+quality_bp = Blueprint('quality', __name__, template_folder='templates/quality')
+
+@quality_bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Maybe check that current_user.department == 'Operations'
+    if current_user.department.lower() != 'quality':
+        return "Unauthorized", 403
+    return render_template('dashboard.html', user=current_user)
+
+
+================================================================================
+FILE: departments/quality/__pycache__/routes.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: templates/base.html
+--------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title or "Dashboard" }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">EMRI App</a>
+        {% if current_user.is_authenticated %}
+          <span class="navbar-text">
+            Logged in as {{ current_user.name }} ({{ current_user.email }})
+          </span>
+          <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+        {% endif %}
+      </div>
+    </nav>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+
+
+================================================================================
+FILE: __pycache__/config.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
+
+================================================================================
+FILE: __pycache__/extensions.cpython-312.pyc
+--------------------------------------------------------------------------------
+[Skipped: Too large or not a relevant file type]
